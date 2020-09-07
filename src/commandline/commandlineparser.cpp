@@ -43,6 +43,17 @@ CommandLineParser::CommandLineParser(int argc, char *argv[])
     }
 };
 
+void CommandLineParser::setEngine(QQmlEngine* engine)
+{
+    for (const auto path : _importPaths) {
+        engine->addImportPath(path);
+    }
+
+    for (const auto path : _pluginPaths) {
+        engine->addPluginPath(path);
+    }
+}
+
 void CommandLineParser::printHelp()
 {
     for (const auto& optionStruct : _optionsStruct) {
@@ -52,7 +63,7 @@ void CommandLineParser::printHelp()
         }
 
         auto commands = names.join(", ");
-        auto tabs = QString("\t").repeated(3 - commands.length()/8);
+        auto tabs = QString("\t").repeated(3 - (commands.length() + 1)/8);
         qDebug().noquote() << commands << tabs << optionStruct.option.description();
     }
 }

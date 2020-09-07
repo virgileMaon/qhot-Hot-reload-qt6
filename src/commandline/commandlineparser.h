@@ -5,6 +5,7 @@
 #include <QCommandLineParser>
 #include <QDebug>
 #include <QQmlEngine>
+#include <QQuickStyle>
 #include <QTranslator>
 
 
@@ -33,11 +34,7 @@ public:
      *
      * @param qmlengine
      */
-    void setEngine(QQmlEngine* engine)
-    {
-        engine->setImportPathList(_importPaths);
-        engine->setPluginPathList(_pluginPaths);
-    }
+    void setEngine(QQmlEngine* engine);
 
     /**
      * @brief Set the QCoreApplication to do the necessary configuration
@@ -48,6 +45,10 @@ public:
     {
         Q_UNUSED(application)
         QCoreApplication::installTranslator(&_translator);
+
+        for(auto function : _posAppFunctions) {
+            function();
+        }
     }
 
 private:
@@ -55,6 +56,8 @@ private:
         QCommandLineOption option;
         std::function<void(const QString&)> function;
     };
+
+    QList<std::function<void()>> _posAppFunctions;
 
     void printHelp();
 
@@ -71,6 +74,10 @@ private:
         {
             {"desktop", "Force use of desktop GL (AA_UseDesktopOpenGL)"},
             [](const QString&) { QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL); },
+        },
+        {
+            {"style", "Change style"},
+            [this](const QString& argument) { _posAppFunctions.append([argument]{ QQuickStyle::setStyle(argument); }); },
         },
         {
             {"gles", "Force use of GLES (AA_UseOpenGLES)"},
