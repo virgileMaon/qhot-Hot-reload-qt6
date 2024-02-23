@@ -1,18 +1,17 @@
 #include "providessomething.h"
-#include "urlinterceptor.h"
-
 #include <QDirIterator>
-#include <QJSEngine>
 #include <QQmlEngine>
+#include "urlinterceptor.h"
 
 ProvidesSomething::ProvidesSomething()
 {
-    connect(UrlInterceptor::self(), &UrlInterceptor::newFile, this, [this](const QUrl& path){
+    connect(UrlInterceptor::self(), &UrlInterceptor::newFile, this, [this](const QUrl &path) {
         _fileSystemWatcher.addPath(path.toLocalFile());
     });
 
-    connect(&_fileSystemWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString& path){
+    connect(&_fileSystemWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
         Q_UNUSED(path)
+        qDebug() << "changed";
         m_engine->clearComponentCache();
         emit filePathChanged();
     });
